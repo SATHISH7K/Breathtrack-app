@@ -1,0 +1,29 @@
+<?php
+header("Content-Type: application/json; charset=UTF-8");
+require_once "config.php";
+
+try {
+    $conn = (new Database())->connect();
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    if (empty($data['patient_id'])) {
+        echo json_encode(["status" => "error", "message" => "Missing patient_id"]);
+        exit;
+    }
+
+    $patient_id = intval($data['patient_id']);
+    $stmt = $conn->prepare("SELECT medicine_name, remarks FROM medication_diary WHERE patient_id = :patient_id");
+    $stmt->bindParam(':patient_id', $patient_id);
+    $stmt->execute();
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($rows) {
+        echo json_encode(["status" => "success", "data" => $rows]);
+    } else {
+        echo json_encode(["status" => "empty", "message" => "No previous data found"]);
+    }
+
+} catch (PDOException $e) {
+    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+}
+?>

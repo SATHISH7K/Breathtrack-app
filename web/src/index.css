@@ -1,0 +1,551 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    /* UI Colors */
+    --bt-primary: #5B4CF5;
+    --bt-primary-soft: #857AF7;
+    --bt-primary-gradient: linear-gradient(135deg, #5B4CF5, #857AF7);
+
+    --bt-doctor-primary: #7B6CF6;
+    --bt-doctor-gradient: linear-gradient(135deg, #7B6CF6, #A69EF9);
+
+    --bt-accent: #FF3B30;
+    --bt-accent-orange: #FF9500;
+    --bt-accent-green: #34C759;
+    --bt-accent-purple: #7B6CF6;
+
+    /* Backgrounds */
+    --bt-background: #F8F9FE;
+    --bt-surface: #FFFFFF;
+    --bt-surface2: #F2F2F7;
+
+    /* Text */
+    --bt-text-primary: #1C1C1E;
+    --bt-text-second: #3A3A3C;
+    --bt-text-tertiary: #8E8E93;
+    --bt-border: #E5E5EA;
+
+    /* Spacing & Radius */
+    --bt-radius: 24px;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    /* Outer background */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--bt-text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── UI COMPONENTS ─────────────────────────── */
+
+.page-container {
+    min-height: 100vh;
+    background-color: var(--bt-background);
+    width: 100%;
+}
+
+.page-header {
+    height: 64px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.page-content {
+    padding: 0 24px 40px;
+}
+
+.bt-title {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+}
+
+.bt-title2 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+}
+
+.bt-headline {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.bt-body {
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--bt-text-second);
+}
+
+.bt-caption {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.bt-caption2 {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+.bt-title3 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.1px;
+}
+
+.bt-body-small {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--bt-text-second);
+}
+
+/* ── TAILWIND COLOR ALIASES ─────────────────── */
+
+.text-bt-primary {
+    color: var(--bt-primary);
+}
+
+.text-bt-accent {
+    color: var(--bt-accent);
+}
+
+.text-bt-accent-green {
+    color: var(--bt-accent-green);
+}
+
+.text-bt-accent-orange {
+    color: var(--bt-accent-orange);
+}
+
+.text-bt-accent-purple {
+    color: var(--bt-accent-purple);
+}
+
+.text-bt-text-primary {
+    color: var(--bt-text-primary);
+}
+
+.text-bt-text-second {
+    color: var(--bt-text-second);
+}
+
+.text-bt-text-tertiary {
+    color: var(--bt-text-tertiary);
+}
+
+.text-bt-doctor-primary {
+    color: var(--bt-doctor-primary);
+}
+
+.bg-bt-primary {
+    background-color: var(--bt-primary);
+}
+
+.bg-bt-background {
+    background-color: var(--bt-background);
+}
+
+.bg-bt-surface {
+    background-color: var(--bt-surface);
+}
+
+.bg-bt-surface2 {
+    background-color: var(--bt-surface2);
+}
+
+.bg-bt-accent {
+    background-color: var(--bt-accent);
+}
+
+.bg-bt-accent-green {
+    background-color: var(--bt-accent-green);
+}
+
+.bg-bt-accent-orange {
+    background-color: var(--bt-accent-orange);
+}
+
+.bg-bt-doctor-primary {
+    background-color: var(--bt-doctor-primary);
+}
+
+.border-bt-primary {
+    border-color: var(--bt-primary);
+}
+
+.border-bt-border {
+    border-color: var(--bt-border);
+}
+
+.border-bt-doctor-primary {
+    border-color: var(--bt-doctor-primary);
+}
+
+.border-bt-accent {
+    border-color: var(--bt-accent);
+}
+
+.bg-bt-primary-gradient {
+    background: var(--bt-primary-gradient);
+}
+
+
+/* ── BUTTONS ──────────────────────────────── */
+
+.bt-primary-btn {
+    width: 100%;
+    height: 60px;
+    border-radius: 20px;
+    background: var(--bt-primary-gradient);
+    color: white;
+    border: none;
+    font-size: 17px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(91, 76, 245, 0.2);
+    transition: all 0.2s ease;
+}
+
+.bt-primary-btn.doctor {
+    background: var(--bt-doctor-gradient);
+    box-shadow: 0 10px 20px rgba(123, 108, 246, 0.2);
+}
+
+.bt-primary-btn:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+
+.icon-btn-bg {
+    width: 44px;
+    height: 44px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    color: var(--bt-text-primary);
+}
+
+.bt-back-btn {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: none;
+    color: var(--bt-text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+/* ── CARDS ────────────────────────────────── */
+
+.bt-card {
+    background: white;
+    border-radius: 28px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+}
+
+.bt-hero-card {
+    background: var(--bt-primary-gradient);
+    border-radius: 32px;
+    padding: 24px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+/* ── INPUTS ───────────────────────────────── */
+
+.bt-input-wrapper {
+    height: 56px;
+    background: white;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border: 1.5px solid var(--bt-border);
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.bt-input-wrapper:focus-within {
+    border-color: var(--bt-primary);
+    box-shadow: 0 0 0 4px rgba(91, 76, 245, 0.1);
+}
+
+.bt-input-wrapper input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--bt-text-primary);
+    padding: 0 8px;
+}
+
+.input-icon {
+    color: var(--bt-text-tertiary);
+    display: flex;
+    align-items: center;
+}
+
+/* ── GLOBAL LAYOUT ─────────────────────────── */
+
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+}
+
+.drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    background: white;
+    z-index: 101;
+    box-shadow: 20px 0 50px rgba(0, 0, 0, 0.1);
+}
+
+.bt-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.bt-status-badge.error {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.bt-status-badge.success {
+    background: #dcfce7;
+    color: #10b981;
+}
+
+.bt-status-badge.warning {
+    background: #fef3c7;
+    color: #f59e0b;
+}
+
+.fullscreen-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-close {
+    position: absolute;
+    top: 40px;
+    right: 20px;
+    color: white;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+/* ── UTILITIES ──────────────────────────────── */
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.selectable-chip {
+    padding: 10px 18px;
+    background: white;
+    border: 1.5px solid var(--bt-border);
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--bt-text-second);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.selectable-chip.selected {
+    background: var(--bt-primary);
+    border-color: var(--bt-primary);
+    color: white;
+    box-shadow: 0 4px 10px rgba(91, 76, 245, 0.2);
+}
+
+.segmented-picker {
+    display: flex;
+    background: var(--bt-surface2);
+    border-radius: 14px;
+    padding: 4px;
+    gap: 4px;
+}
+
+.segmented-picker button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bt-text-tertiary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.segmented-picker button.active {
+    background: white;
+    color: var(--bt-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.form-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--bt-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.bt-input-wrapper select {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--bt-text-primary);
+    appearance: none;
+}
+
+.stepper-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: white;
+    border: 2px solid var(--bt-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bt-primary);
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.stepper-btn:active {
+    transform: scale(0.9);
+    background: var(--bt-primary);
+    color: white;
+    border-color: var(--bt-primary);
+}
+
+.shadow-deep {
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+}
+
+.shadow-card {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+}
+
+.section-title-small {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--bt-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    padding-left: 4px;
+}
+
+/* ── FORM COMPONENT UTILITIES ───────────────── */
+
+.password-toggle {
+    background: transparent;
+    border: none;
+    color: var(--bt-text-tertiary);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 8px;
+    transition: color 0.2s;
+}
+
+.password-toggle:hover {
+    color: var(--bt-primary);
+}
+
+.validation-msg {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--bt-accent);
+    padding-left: 4px;
+}
+
+.spinner {
+    animation: spin 0.8s linear infinite;
+    width: 24px;
+    height: 24px;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ── RESPONSIVE CONTAINER ───────────────────── */
+
+@media (min-width: 480px) {
+    .page-header {
+        border-radius: 0;
+    }
+}

@@ -1,0 +1,53 @@
+/* Global Resets for BreathTrack Neat UI */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+/* Ensure images don't break layouts */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Buttons and Inputs Global */
+button {
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Custom Scrollbar for a neat look */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d0d0d0;
+}
