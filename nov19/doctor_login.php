@@ -26,9 +26,16 @@ try {
 
     if ($stmt->rowCount() === 1) {
         $doctor = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($password === $doctor['password']) { // For security, use password_verify()
+        $is_correct = false;
+        if (password_verify($password, $doctor['password'])) {
+            $is_correct = true;
+        } else if ($password === $doctor['password']) {
+            $is_correct = true;
+        }
+
+        if ($is_correct) {
             unset($doctor['password']);
-            echo json_encode(["status" => "success", "message" => "Login successful", "data" => $doctor]);
+            echo json_encode(["status" => "success", "message" => "Login successful", "name" => $doctor['name'], "data" => $doctor]);
         } else {
             echo json_encode(["status" => "error", "message" => "Invalid password"]);
         }
@@ -36,7 +43,7 @@ try {
         echo json_encode(["status" => "error", "message" => "Doctor not found"]);
     }
 
-} catch(PDOException $e) {
+} catch (PDOException $e) {
     echo json_encode(["status" => "error", "message" => $e->getMessage()]);
 }
 ?>

@@ -470,9 +470,9 @@ struct Appointments: View {
                         let message = json["message"] as? String ?? "Unknown error"
                         
                         if status == "success" {
-                            showSuccessAlert = true
-                            self.name = ""
-                            self.contact = ""
+                            // After submission, we must ensure it's "Pending" so it shows in Notifications.
+                            // The backend UPDATE might keep it as "Accepted" if they were previously booked.
+                            self.resetStatusToPending()
                         } else {
                             self.alertMessage = "Booking failed: \(message)"
                             self.showAlert = true
@@ -486,6 +486,53 @@ struct Appointments: View {
                     self.showAlert = true
                 }
             }
+        }.resume()
+    }
+    
+    /// Resets the status to pending so it appears in Doctor Notifications
+    private func resetStatusToPending() {
+        guard let patientId = session.current?.patient_id else {
+            self.showSuccessAlert = true
+            return
+        }
+        
+        // 1. Get the appointment ID for this patient
+        guard let getUrl = APIConfig.getURL(for: "get_appointment.php") else {
+            self.showSuccessAlert = true
+            return
+        }
+        
+        var getRequest = URLRequest(url: getUrl)
+        getRequest.httpMethod = "POST"
+        getRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        getRequest.httpBody = try? JSONSerialization.data(withJSONObject: ["patient_id": patientId])
+        
+        URLSession.shared.dataTask(with: getRequest) { data, _, _ in
+            guard let data = data,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let appt = json["appointment"] as? [String: Any],
+                  let apptId = appt["appointment_id"] else {
+                DispatchQueue.main.async { self.showSuccessAlert = true }
+                return
+            }
+            
+            // 2. Set status to pending
+            guard let updateUrl = APIConfig.getURL(for: "update_appointment_status.php") else {
+                DispatchQueue.main.async { self.showSuccessAlert = true }
+                return
+            }
+            
+            var updateRequest = URLRequest(url: updateUrl)
+            updateRequest.httpMethod = "POST"
+            updateRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            let body: [String: Any] = ["appointment_id": apptId, "status": "Pending"]
+            updateRequest.httpBody = try? JSONSerialization.data(withJSONObject: body)
+            
+            URLSession.shared.dataTask(with: updateRequest) { _, _, _ in
+                DispatchQueue.main.async {
+                    self.showSuccessAlert = true
+                }
+            }.resume()
         }.resume()
     }
 }

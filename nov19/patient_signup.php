@@ -29,6 +29,7 @@ $diagnosis = trim($data['diagnosis']);
 $occupation = trim($data['occupation']);
 $phone_number = trim($data['phone_number']);
 $password = trim($data['password']);
+$hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
 // ✅ Generate unique Patient ID only here
 do {
@@ -52,7 +53,7 @@ try {
     $stmt->bindParam(":diagnosis", $diagnosis);
     $stmt->bindParam(":occupation", $occupation);
     $stmt->bindParam(":phone_number", $phone_number);
-    $stmt->bindParam(":password", $password);
+    $stmt->bindParam(":password", $hashed_password);
     $stmt->execute();
 
     echo json_encode(["status" => "success", "message" => "Signup successful", "patient_id" => $patient_id]);

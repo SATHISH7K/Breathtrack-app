@@ -34,8 +34,8 @@ if (!file_exists($uploadDir)) {
     mkdir($uploadDir, 0777, true);
 }
 
-// Maximum file size (50MB)
-$maxFileSize = 50 * 1024 * 1024;
+// Maximum file size (300MB)
+$maxFileSize = 300 * 1024 * 1024;
 
 // Allowed video formats
 $allowedFormats = ['mp4', 'avi', 'mov', 'mkv', 'wmv', 'flv', '3gp'];
@@ -48,7 +48,7 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 if ($requestMethod === 'POST') {
     if (isset($_POST['action'])) {
         $action = $_POST['action'];
-        
+
         if ($action === 'upload' && isset($_FILES['video'])) {
             // Local video upload
             handleVideoUpload($pdo, $uploadDir, $maxFileSize, $allowedFormats, $baseUrl);
@@ -70,7 +70,8 @@ if ($requestMethod === 'POST') {
 // ====================================
 // FUNCTION: UPLOAD LOCAL VIDEO
 // ====================================
-function handleVideoUpload($pdo, $uploadDir, $maxFileSize, $allowedFormats, $baseUrl) {
+function handleVideoUpload($pdo, $uploadDir, $maxFileSize, $allowedFormats, $baseUrl)
+{
     try {
         $title = $_POST['title'] ?? 'Untitled Video';
         $description = $_POST['description'] ?? '';
@@ -88,7 +89,7 @@ function handleVideoUpload($pdo, $uploadDir, $maxFileSize, $allowedFormats, $bas
 
         // Check file size
         if ($fileSize > $maxFileSize) {
-            echo json_encode(['status' => 'error', 'message' => 'File size exceeds 50MB limit']);
+            echo json_encode(['status' => 'error', 'message' => 'File size exceeds 300MB limit']);
             return;
         }
 
@@ -104,7 +105,7 @@ function handleVideoUpload($pdo, $uploadDir, $maxFileSize, $allowedFormats, $bas
         // Generate unique filename
         $uniqueFileName = uniqid('video_', true) . '.' . $fileExtension;
         $relativePath = $uploadDir . $uniqueFileName;
-        
+
         // Create full URL for database storage
         $videoUrl = $baseUrl . $relativePath;
 
@@ -148,7 +149,8 @@ function handleVideoUpload($pdo, $uploadDir, $maxFileSize, $allowedFormats, $bas
 // ====================================
 // FUNCTION: ADD VIDEO URL (YouTube, etc.)
 // ====================================
-function handleVideoUrl($pdo) {
+function handleVideoUrl($pdo)
+{
     try {
         $videoUrl = $_POST['video_url'] ?? '';
         $title = $_POST['title'] ?? 'Untitled Video';
@@ -206,7 +208,8 @@ function handleVideoUrl($pdo) {
 // ====================================
 // FUNCTION: RETRIEVE VIDEOS
 // ====================================
-function handleVideoRetrieval($pdo) {
+function handleVideoRetrieval($pdo)
+{
     try {
         $videoId = $_GET['video_id'] ?? null;
         $videoType = $_GET['video_type'] ?? null;
@@ -257,7 +260,8 @@ function handleVideoRetrieval($pdo) {
 // ====================================
 // FUNCTION: HANDLE DATA SUBMISSION (JSON)
 // ====================================
-function handleDataSubmission($pdo) {
+function handleDataSubmission($pdo)
+{
     try {
         $input = json_decode(file_get_contents('php://input'), true);
 

@@ -18,10 +18,11 @@ if (empty($data['patient_id']) || empty($data['new_password'])) {
 
 $patient_id = trim($data['patient_id']);
 $new_password = trim($data['new_password']);
+$hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
 
 try {
     $stmt = $db->prepare("UPDATE patients SET password = :password WHERE patient_id = :patient_id");
-    $stmt->bindParam(":password", $new_password);
+    $stmt->bindParam(":password", $hashed_password);
     $stmt->bindParam(":patient_id", $patient_id);
     $stmt->execute();
 

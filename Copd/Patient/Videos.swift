@@ -10,7 +10,7 @@ struct VideosView: View {
     @State private var isLoading = true
 
     private func fetchVideos() {
-        guard let url = APIConfig.getURL(for: "uploadvideo.php") else { return }
+        guard let url = APIConfig.getURL(for: "upload_video.php") else { return }
         
         URLSession.shared.dataTask(with: url) { data, response, error in
             DispatchQueue.main.async { self.isLoading = false }
@@ -22,10 +22,15 @@ struct VideosView: View {
                     
                     let fetchedItems = videos.compactMap { dict -> VideoLink? in
                         guard let title = dict["title"] as? String,
-                              let urlString = dict["youtube_url"] as? String,
+                              let urlString = dict["video_url"] as? String,
                               let url = URL(string: urlString) else { return nil }
                         
-                        return .youtube(title: title, url: url)
+                        let videoType = dict["video_type"] as? String ?? "external"
+                        if videoType == "youtube" {
+                            return .youtube(title: title, url: url)
+                        } else {
+                            return .external(title: title, url: url)
+                        }
                     }
                     
                     DispatchQueue.main.async {

@@ -21,6 +21,7 @@ struct AboutScreen2: View {
     @State private var showSignup = false
     @State private var showDoctorDashboard = false
     @State private var showForgotPassword = false
+    @State private var showDoctorForgotPassword = false
     @State private var showRecoverId = false
 
     var body: some View {
@@ -132,6 +133,16 @@ struct AboutScreen2: View {
                                     .foregroundColor(.btPrimary)
                                     .padding(.top, 4)
                                 }
+                            } else {
+                                HStack {
+                                    Spacer()
+                                    Button("Forgot Password?") {
+                                        showDoctorForgotPassword = true
+                                    }
+                                    .font(.btCaption)
+                                    .foregroundStyle(LinearGradient.btDoctorGradient)
+                                    .padding(.top, 4)
+                                }
                             }
                         }
                         .padding(.horizontal, Spacing.lg)
@@ -193,6 +204,9 @@ struct AboutScreen2: View {
         }
         .navigationDestination(isPresented: $showForgotPassword) {
             PatientForgotPasswordView()
+        }
+        .navigationDestination(isPresented: $showDoctorForgotPassword) {
+            DoctorForgotPasswordView()
         }
         .navigationDestination(isPresented: $showRecoverId) {
             RecoverPatientIdView()

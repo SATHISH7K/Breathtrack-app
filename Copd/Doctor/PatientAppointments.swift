@@ -78,8 +78,11 @@ final class PatientAppointmentsVM: ObservableObject {
                         )
                     }
                     
+                    // Filter to keep only unique patients (latest appointment)
+                    let uniqueItems = Array(Dictionary(grouping: fetched, by: { $0.patientId }).values.compactMap { $0.first })
+                    
                     Task { @MainActor in
-                        self.items = fetched
+                        self.items = uniqueItems.sorted { $0.name < $1.name }
                     }
                 }
             } catch {

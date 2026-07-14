@@ -27,15 +27,15 @@ try {
     // 🩺 Medical info
     $copd_confirmed = !empty($data['copd_confirmed']) ? 1 : 0;
     $duration_symptoms = trim($data['duration_symptoms'] ?? '');
-    $symptoms = !empty($data['symptoms']) ? implode(',', (array)$data['symptoms']) : '';
+    $symptoms = !empty($data['symptoms']) ? implode(',', (array) $data['symptoms']) : '';
     $medications = trim($data['medications'] ?? '');
     $allergies = trim($data['allergies'] ?? '');
     $smoking_status = trim($data['smoking_status'] ?? 'Never Smoked');
 
     // 📅 Appointment details
     $preferred_date = trim($data['preferred_date'] ?? '');
-    $preferred_time = !empty($data['preferred_time']) ? implode(',', (array)$data['preferred_time']) : '';
-    $consultation_mode = !empty($data['consultation_mode']) ? implode(',', (array)$data['consultation_mode']) : '';
+    $preferred_time = !empty($data['preferred_time']) ? implode(',', (array) $data['preferred_time']) : '';
+    $consultation_mode = !empty($data['consultation_mode']) ? implode(',', (array) $data['consultation_mode']) : '';
 
     // 🧠 Database connect
     $db = (new Database())->connect();
@@ -63,6 +63,7 @@ try {
                 preferred_date = :preferred_date,
                 preferred_time = :preferred_time,
                 consultation_mode = :consultation_mode,
+                status = 'Pending',
                 updated_at = NOW()
             WHERE patient_id = :patient_id
         ";
@@ -74,13 +75,13 @@ try {
                 copd_confirmed, duration_symptoms, symptoms,
                 medications, allergies, smoking_status,
                 preferred_date, preferred_time, consultation_mode,
-                created_at
+                status, created_at
             ) VALUES (
                 :patient_id, :name, :age, :gender, :contact, :email, :address,
                 :copd_confirmed, :duration_symptoms, :symptoms,
                 :medications, :allergies, :smoking_status,
                 :preferred_date, :preferred_time, :consultation_mode,
-                NOW()
+                'Pending', NOW()
             )
         ";
     }
@@ -109,8 +110,8 @@ try {
     echo json_encode(["status" => "success", "message" => "Appointment $action successfully"]);
 
 } catch (PDOException $e) {
-    echo json_encode(["status" => "error", "message" => "Database error: ".$e->getMessage()]);
+    echo json_encode(["status" => "error", "message" => "Database error: " . $e->getMessage()]);
 } catch (Exception $e) {
-    echo json_encode(["status" => "error", "message" => "Unexpected error: ".$e->getMessage()]);
+    echo json_encode(["status" => "error", "message" => "Unexpected error: " . $e->getMessage()]);
 }
 ?>

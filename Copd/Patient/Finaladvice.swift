@@ -144,14 +144,10 @@ struct FinalAdviceView: View {
         var fetchedMedication = MedicationDiaryEntry(medicines: [], remarks: "No remarks provided by doctor yet.", imagePlaceholder: "medication_report")
         
         group.enter()
-        fetchReport(endpoint: "get_pft.php", patientId: patientId, title: "PFT Report") { report in
-            if let r = report { fetchedReports.append(r) }
-            group.leave()
-        }
-        
-        group.enter()
-        fetchReport(endpoint: "get_abg.php", patientId: patientId, title: "ABG Report") { report in
-            if let r = report { fetchedReports.append(r) }
+        fetchMedicalReports(patientId: patientId) { reports in
+            if let reports = reports {
+                fetchedReports.append(contentsOf: reports)
+            }
             group.leave()
         }
         
@@ -162,15 +158,14 @@ struct FinalAdviceView: View {
         }
         
         group.notify(queue: .main) {
-            // Sort so PFT Report is above ABG Report
-            self.advice = fetchedReports.sorted(by: { $0.title > $1.title })
+            self.advice = fetchedReports // Already sorted by date in backend normally, or we just pass it
             self.medicationEntry = fetchedMedication
             self.isLoading = false
         }
     }
     
-    private func fetchReport(endpoint: String, patientId: String, title: String, completion: @escaping (Report?) -> Void) {
-        guard let url = APIConfig.getURL(for: endpoint) else { completion(nil); return }
+    private func fetchMedicalReports(patientId: String, completion: @escaping ([Report]?) -> Void) {
+        guard let url = APIConfig.getURL(for: "get_medical_reports.php") else { completion(nil); return }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -180,33 +175,75 @@ struct FinalAdviceView: View {
         URLSession.shared.dataTask(with: request) { data, _, _ in
             guard let data = data,
                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let status = json["status"] as? String, status == "success",
-                  let dataDict = json["data"] as? [String: Any] else {
+                  let status = json["status"] as? String, status == "success" else {
                 completion(nil)
                 return
             }
             
-            // Map individual Yes/No (1/0) fields to a single condition string
-            var conditionStr = "N/A"
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
             
-            func isYes(_ value: Any?) -> Bool {
-                if let s = value as? String { return s == "Yes" || s == "1" }
-                if let i = value as? Int { return i == 1 }
-                return false
+            let displayFormatter = DateFormatter()
+            displayFormatter.dateFormat = "dd MMM yyyy"
+            
+            var allReports: [Report] = []
+            
+            func formatDate(_ str: String) -> String {
+                if let d = dateFormatter.date(from: str) {
+                    return displayFormatter.string(from: d)
+                }
+                return str
             }
-
-            if isYes(dataDict["normal"]) { conditionStr = "Normal" }
-            else if isYes(dataDict["mild"]) { conditionStr = "Mild" }
-            else if isYes(dataDict["moderate"]) { conditionStr = "Moderate" }
-            else if isYes(dataDict["severe"]) { conditionStr = "Severe" }
             
-            let report = Report(
-                title: title,
-                condition: conditionStr,
-                remarks: dataDict["comments"] as? String ?? "",
-                imagePlaceholder: "medication_report"
-            )
-            completion(report)
+            func normalizeImagePath(_ path: String?) -> String? {
+                guard let p = path, !p.isEmpty else { return nil }
+                return p.hasPrefix("/") ? String(p.dropFirst()) : p
+            }
+            
+            if let pftHist = json["pft_history"] as? [[String: Any]] {
+                for r in pftHist {
+                    allReports.append(Report(
+                        id: UUID(),
+                        title: "PFT",
+                        condition: r["condition"] as? String ?? "Unknown",
+                        remarks: r["comments"] as? String ?? "",
+                        imagePlaceholder: "medication_report",
+                        dateStr: formatDate(r["created_at"] as? String ?? ""),
+                        documentUrl: normalizeImagePath(r["image_path"] as? String)
+                    ))
+                }
+            }
+            
+            if let abgHist = json["abg_history"] as? [[String: Any]] {
+                for r in abgHist {
+                    allReports.append(Report(
+                        id: UUID(),
+                        title: "ABG",
+                        condition: r["condition"] as? String ?? "Unknown",
+                        remarks: r["comments"] as? String ?? "",
+                        imagePlaceholder: "medication_report",
+                        dateStr: formatDate(r["created_at"] as? String ?? ""),
+                        documentUrl: normalizeImagePath(r["image_path"] as? String)
+                    ))
+                }
+            }
+            
+            if let walkHist = json["walk_test_history"] as? [[String: Any]] {
+                for r in walkHist {
+                    allReports.append(Report(
+                        id: UUID(),
+                        title: "Walk Test",
+                        condition: "N/A",
+                        remarks: r["description"] as? String ?? "",
+                        imagePlaceholder: "medication_report",
+                        dateStr: formatDate(r["created_at"] as? String ?? ""),
+                        documentUrl: normalizeImagePath(r["image_path"] as? String)
+                    ))
+                }
+            }
+            
+            // Backend returns data ordered by created_at DESC for each history type.
+            completion(allReports)
         }.resume()
     }
     

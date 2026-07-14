@@ -27,7 +27,18 @@ try {
     if ($stmt->rowCount() === 1) {
         $patient = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($password === $patient['password']) {
+        $is_correct = false;
+
+        // 1. Try bcrypt verification (for iOS-registered or new web-registered hashed passwords)
+        if (password_verify($password, $patient['password'])) {
+            $is_correct = true;
+        }
+        // 2. Fallback to plain text match (for legacy web-registered plain text passwords)
+        else if ($password === $patient['password']) {
+            $is_correct = true;
+        }
+
+        if ($is_correct) {
             echo json_encode([
                 "status" => "success",
                 "message" => "Login successful",
@@ -44,7 +55,7 @@ try {
         echo json_encode(["status" => "error", "message" => "Patient not found"]);
     }
 
-} catch(PDOException $e) {
+} catch (PDOException $e) {
     echo json_encode(["status" => "error", "message" => "Database error: " . $e->getMessage()]);
 }
 ?>

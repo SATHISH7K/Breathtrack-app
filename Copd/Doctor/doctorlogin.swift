@@ -10,6 +10,7 @@ struct doctorlogin: View {
     @State private var message: String = ""
     @State private var messageStatus: BTStatusBadge.Status = .error
     @State private var showDoctorDashboard = false
+    @State private var showForgotPassword = false
     @State private var contentVisible = false
 
     var body: some View {
@@ -85,6 +86,15 @@ struct doctorlogin: View {
                                 text: $password,
                                 isSecure: true
                             )
+
+                            HStack {
+                                Spacer()
+                                Button("Forgot Password?") {
+                                    showForgotPassword = true
+                                }
+                                .font(.btCaption)
+                                .foregroundStyle(LinearGradient.btDoctorGradient)
+                            }
                         }
                         .padding(.horizontal, Spacing.lg)
                         .padding(.top, Spacing.lg)
@@ -120,6 +130,9 @@ struct doctorlogin: View {
         .navigationBarHidden(true)
         .navigationDestination(isPresented: $showDoctorDashboard) {
             doctordashboard().navigationBarBackButtonHidden(true)
+        }
+        .navigationDestination(isPresented: $showForgotPassword) {
+            DoctorForgotPasswordView()
         }
         .onAppear {
             withAnimation(.spring(response: 0.7, dampingFraction: 0.8)) {
@@ -163,6 +176,7 @@ struct doctorlogin: View {
                     if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                         if let status = json["status"] as? String, status == "success" {
                             withAnimation { message = "Login successful!"; messageStatus = .success }
+                            UserDefaults.standard.set(doctorId, forKey: "loggedInDoctorId")
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                 showDoctorDashboard = true
                             }

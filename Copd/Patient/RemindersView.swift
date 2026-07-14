@@ -16,6 +16,9 @@ struct RemindersView: View {
     @EnvironmentObject var session: PatientSession
     @Environment(\.dismiss) private var dismiss
     @State private var alarms: [ScheduledAlarm] = []
+    @State private var appointmentStatus: String? = nil
+    @State private var appointmentDate: String = ""
+    @State private var appointmentTime: String = ""
     @State private var isLoading = true
     @State private var appeared = false
     @State private var showCancelAllAlert = false
@@ -59,7 +62,7 @@ struct RemindersView: View {
                     Spacer()
                     ProgressView().scaleEffect(1.5).tint(.btPrimary)
                     Spacer()
-                } else if alarms.isEmpty {
+                } else if alarms.isEmpty && (appointmentStatus?.lowercased() != "accepted") {
                     Spacer()
                     VStack(spacing: Spacing.md) {
                         ZStack {
@@ -83,6 +86,41 @@ struct RemindersView: View {
                 } else {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: Spacing.md) {
+                            
+                            // ── NEW: Appointment Accepted Notification on Top ──
+                            if let status = appointmentStatus, status.lowercased() == "accepted" {
+                                HStack(spacing: Spacing.md) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 14)
+                                            .fill(Color.btAccentGreen.opacity(0.12))
+                                            .frame(width: 50, height: 50)
+                                        Image(systemName: "calendar.badge.checkmark")
+                                            .font(.system(size: 22))
+                                            .foregroundColor(.btAccentGreen)
+                                    }
+                                    
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Appointment Confirmed!")
+                                            .font(.btHeadline)
+                                            .foregroundColor(.btTextPrimary)
+                                        Text("Your doctor has accepted your appointment on \(appointmentDate) at \(appointmentTime).")
+                                            .font(.btCaption)
+                                            .foregroundColor(.btTextSecond)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                    Spacer()
+                                }
+                                .padding(Spacing.md)
+                                .background(Color.btSurface)
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(Color.btAccentGreen.opacity(0.3), lineWidth: 1)
+                                )
+                                .btCardShadow()
+                                .transition(.move(edge: .top).combined(with: .opacity))
+                            }
+
                             ForEach(Array(alarms.enumerated()), id: \.element.id) { index, alarm in
                                 AlarmCard(alarm: alarm, delay: Double(index) * 0.05) {
                                     // Cancel this specific alarm
@@ -117,10 +155,39 @@ struct RemindersView: View {
         }
         .onAppear {
             loadAlarms()
+            fetchAppointmentStatus()
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 appeared = true
             }
         }
+    }
+    
+    private func fetchAppointmentStatus() {
+        guard let pId = session.current?.patient_id else { return }
+        guard let url = APIConfig.getURL(for: "get_appointment.php") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["patient_id": pId])
+        
+        URLSession.shared.dataTask(with: request) { data, _, _ in
+            guard let data = data,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let appt = json["appointment"] as? [String: Any],
+                  let status = appt["status"] as? String else { return }
+            
+            let date = appt["preferred_date"] as? String ?? ""
+            let time = appt["preferred_time"] as? String ?? ""
+            
+            DispatchQueue.main.async {
+                withAnimation(.spring()) {
+                    self.appointmentStatus = status
+                    self.appointmentDate = date
+                    self.appointmentTime = time
+                }
+            }
+        }.resume()
     }
 
     // MARK: - Load pending notifications from system

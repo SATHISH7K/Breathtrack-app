@@ -9,14 +9,18 @@ struct Report: Identifiable, Hashable {
     let remarks: String
     let imagePlaceholder: String // Default image asset name
     let imageUrl: String?
+    let dateStr: String
+    let documentUrl: String?
 
-    init(id: UUID = UUID(), title: String, condition: String, remarks: String = "", imagePlaceholder: String, imageUrl: String? = nil) {
+    init(id: UUID = UUID(), title: String, condition: String, remarks: String = "", imagePlaceholder: String, imageUrl: String? = nil, dateStr: String = "", documentUrl: String? = nil) {
         self.id = id
         self.title = title
         self.condition = condition
         self.remarks = remarks
         self.imagePlaceholder = imagePlaceholder
         self.imageUrl = imageUrl
+        self.dateStr = dateStr
+        self.documentUrl = documentUrl
     }
 }
 
@@ -65,15 +69,19 @@ struct MedicationDiaryView: View {
                         // All Reports Section
                         if !reports.isEmpty {
                             VStack(alignment: .leading, spacing: Spacing.md) {
-                                SectionHeader(title: "Clinical Reports", icon: "doc.text.fill")
-                                    .padding(.horizontal, Spacing.lg)
-                                    .opacity(appeared ? 1 : 0)
+                                // Group reports by type
+                                let pftReports = reports.filter { $0.title == "PFT" }
+                                let abgReports = reports.filter { $0.title == "ABG" }
+                                let walkReports = reports.filter { $0.title == "Walk Test" }
                                 
-                                ForEach(Array(reports.enumerated()), id: \.element.id) { index, report in
-                                    ReportCard(report: report)
-                                        .opacity(appeared ? 1 : 0)
-                                        .offset(y: appeared ? 0 : 20)
-                                        .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1 + Double(index)*0.05), value: appeared)
+                                if !pftReports.isEmpty {
+                                    ReportGroupView(title: "PFT REPORTS", reports: pftReports, appeared: appeared)
+                                }
+                                if !abgReports.isEmpty {
+                                    ReportGroupView(title: "ABG REPORTS", reports: abgReports, appeared: appeared)
+                                }
+                                if !walkReports.isEmpty {
+                                    ReportGroupView(title: "WALK TEST REPORTS", reports: walkReports, appeared: appeared)
                                 }
                             }
                         }
@@ -125,73 +133,127 @@ private struct SectionHeader: View {
     }
 }
 
-// MARK: - Report Card
+// MARK: - Report Group & Card
 
-private struct ReportCard: View {
-    let report: Report
-
+private struct ReportGroupView: View {
+    let title: String
+    let reports: [Report]
+    let appeared: Bool
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
+        VStack(spacing: 0) {
+            // Group Header
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(report.title)
-                        .font(.btHeadline)
-                        .foregroundColor(.btTextPrimary)
-                    Text("Clinical Assessment")
-                        .font(.btCaption2)
-                        .foregroundColor(.btTextSecond)
-                }
+                Image(systemName: "waveform.path.ecg")
+                    .foregroundColor(.btPrimary)
+                    .font(.system(size: 16, weight: .bold))
+                
+                Text(title)
+                    .font(.btHeadline)
+                    .foregroundColor(.btPrimary)
+                
                 Spacer()
-                ZStack {
-                    Circle().fill(Color.btAccentGreen.opacity(0.15)).frame(width: 32, height: 32)
-                    Image(systemName: "checkmark.seal.fill")
-                        .foregroundColor(.btAccentGreen)
-                        .font(.system(size: 18))
+                
+                Text("\(reports.count)")
+                    .font(.system(size: 13, weight: .black))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.btPrimary)
+                    .clipShape(Capsule())
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .background(Color.btPrimary.opacity(0.06))
+            
+            // Rows
+            VStack(spacing: 0) {
+                ForEach(Array(reports.enumerated()), id: \.element.id) { index, report in
+                    ReportRowView(report: report)
+                    
+                    if index < reports.count - 1 {
+                        Divider().background(Color.btBorder)
+                    }
                 }
             }
-            
-            Divider().background(Color.btBorder)
-            
-            VStack(alignment: .leading, spacing: Spacing.md) {
-                HStack(alignment: .top, spacing: Spacing.md) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Label {
-                            Text("Current Condition")
-                                .font(.btCaption2)
-                                .foregroundColor(.btTextSecond)
-                        } icon: {
-                            Image(systemName: "waveform.path.ecg")
-                                .foregroundColor(.btPrimary)
-                        }
-                        
+            .background(Color.btSurface)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.btBorder, lineWidth: 1))
+        .padding(.horizontal, Spacing.lg)
+        .opacity(appeared ? 1 : 0)
+        .offset(y: appeared ? 0 : 20)
+        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: appeared)
+    }
+}
+
+private struct ReportRowView: View {
+    let report: Report
+    
+    var conditionColor: Color {
+        switch report.condition.lowercased() {
+        case "normal": return .btAccentGreen
+        case "mild", "moderate": return .btAccentOrange
+        case "severe": return .red
+        default: return .gray
+        }
+    }
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 12) {
+                    Text(report.dateStr)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.btTextSecond)
+                    
+                    if report.condition != "N/A" {
                         Text(report.condition)
-                            .font(.btBodyMedium)
-                            .foregroundColor(.btTextPrimary)
-                            .padding(.leading, 24)
+                            .font(.system(size: 12, weight: .black))
+                            .foregroundColor(conditionColor)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .background(conditionColor.opacity(0.15))
+                            .clipShape(Capsule())
                     }
                 }
                 
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Doctor's Remarks")
-                        .font(.btLabel)
-                        .foregroundColor(.btTextPrimary)
-                    
-                    Text(report.remarks.isEmpty ? "No detailed remarks provided for this session." : report.remarks)
-                        .font(.btBody)
-                        .foregroundColor(.btTextPrimary)
-                        .padding(Spacing.md)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.btBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.btBorder, lineWidth: 1))
+                Text(report.remarks.isEmpty ? "No specific remarks." : report.remarks)
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(.btTextPrimary)
+                    .lineLimit(2)
+            }
+            
+            Spacer(minLength: 10)
+            
+            // Walk Test reports never have documents — skip the section entirely
+            if report.title != "Walk Test" {
+                if let docUrl = report.documentUrl, !docUrl.isEmpty {
+                    Button {
+                        if let url = URL(string: "\(APIConfig.baseURL)/\(docUrl)") {
+                            UIApplication.shared.open(url)
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "doc.text")
+                            Text("View Document")
+                        }
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.btPrimary)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .overlay(Capsule().stroke(Color.btPrimary, lineWidth: 1.5))
+                    }
+                } else {
+                    Text("No document")
+                        .font(.system(size: 13))
+                        .foregroundColor(.btTextTertiary)
+                        .padding(.top, 8)
                 }
             }
         }
-        .padding(Spacing.lg)
-        .background(Color.btSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 24))
-        .btCardShadow()
-        .padding(.horizontal, Spacing.lg)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
     }
 }
 

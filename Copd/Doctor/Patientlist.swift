@@ -195,6 +195,11 @@ struct DoctorPatientRow: View {
                     .font(.btHeadline)
                     .foregroundColor(.btTextPrimary)
                 
+                Text("Patient ID: \(patient.id)")
+                    .font(.btCaption2)
+                    .foregroundColor(.btPrimary)
+                    .padding(.bottom, 2)
+                
                 HStack(spacing: 12) {
                     HStack(spacing: 4) {
                         Image(systemName: "stethoscope")

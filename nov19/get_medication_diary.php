@@ -1,11 +1,16 @@
 <?php
 header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
 require_once "config.php";
 
 try {
     $conn = (new Database())->connect();
 
-    $patient_id = $_GET['patient_id'] ?? '';
+    $data = json_decode(file_get_contents("php://input"));
+    $patient_id = $data->patient_id ?? $_GET['patient_id'] ?? '';
 
     if (empty($patient_id)) {
         echo json_encode(["status" => "error", "message" => "Missing patient_id"]);

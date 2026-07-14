@@ -20,7 +20,7 @@ struct PatientMainTabView: View {
                 Appointments(isPresented: .constant(true))
             }
             .tabItem {
-                Label("Appointments", systemImage: session.selectedTab == 1 ? "calendar.badge.clock" : "calendar")
+                Label("Appointment", systemImage: session.selectedTab == 1 ? "calendar.badge.clock" : "calendar")
             }
             .tag(1)
 
@@ -31,6 +31,7 @@ struct PatientMainTabView: View {
             .tabItem {
                 Label("Reminders", systemImage: session.selectedTab == 2 ? "bell.fill" : "bell")
             }
+            .badge(session.hasUnreadNotification ? "!" : nil)
             .tag(2)
 
             // ── Profile ──────────────────────────────────────────
@@ -45,6 +46,8 @@ struct PatientMainTabView: View {
         .tint(Color.btPrimary)
         // Custom tab bar background
         .onAppear {
+            checkUpdateStatus()
+            
             let appearance = UITabBarAppearance()
             appearance.configureWithOpaqueBackground()
             appearance.backgroundColor = UIColor(Color.btSurface)
@@ -70,6 +73,34 @@ struct PatientMainTabView: View {
             UITabBar.appearance().standardAppearance   = appearance
             UITabBar.appearance().scrollEdgeAppearance = appearance
         }
+        .onChange(of: session.selectedTab) { oldValue, newValue in
+            if newValue == 2 {
+                session.hasUnreadNotification = false
+            }
+        }
+    }
+    
+    private func checkUpdateStatus() {
+        guard let pId = session.current?.patient_id else { return }
+        guard let url = APIConfig.getURL(for: "get_appointment.php") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["patient_id": pId])
+        
+        URLSession.shared.dataTask(with: request) { data, _, _ in
+            guard let data = data,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let appt = json["appointment"] as? [String: Any],
+                  let status = appt["status"] as? String else { return }
+            
+            if status.lowercased() == "accepted" {
+                DispatchQueue.main.async {
+                    session.hasUnreadNotification = true
+                }
+            }
+        }.resume()
     }
 }
 

@@ -19,6 +19,7 @@ final class PatientSession: ObservableObject {
     @Published var current: PatientProfile?
     @Published var hasSeenIntro: Bool = false
     @Published var selectedTab: Int = 0
+    @Published var hasUnreadNotification: Bool = false
 
     init(current: PatientProfile? = nil) {
         self.current = current
