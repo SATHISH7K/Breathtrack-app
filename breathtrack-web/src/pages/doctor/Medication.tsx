@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-    ChevronLeft, Check, CheckCircle2, Loader2,
+    ChevronLeft, Check, Loader2,
     Save, Pill
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-    ChevronLeft, Camera, Send, Loader2,
+    ChevronLeft, Send, Loader2,
     FileText
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { apiCall } from '../../api/apiService';
 import './PftValues.css'; // Reusing PFT styles as they are essentially identical
 

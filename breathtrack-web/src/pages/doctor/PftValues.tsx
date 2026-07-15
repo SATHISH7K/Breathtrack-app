@@ -4,7 +4,6 @@ import {
     ChevronLeft, Camera, CheckCircle2, AlertCircle,
     AlertTriangle, Octagon, Send, Loader2
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { apiCall } from '../../api/apiService';
 import './PftValues.css';
 

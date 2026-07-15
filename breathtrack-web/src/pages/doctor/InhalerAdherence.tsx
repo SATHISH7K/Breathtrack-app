@@ -4,7 +4,6 @@ import {
     ChevronLeft, Calendar as CalendarIcon, Check,
     AlertCircle, Loader2, User
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { apiCall } from '../../api/apiService';
 import './InhalerAdherence.css';
 
